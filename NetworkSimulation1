@@ -1,0 +1,49 @@
+library(mvtnorm)
+library(glasso)
+library(MASS)
+library(network)
+
+Tau0 <- c(0.1, 0.15, 0.2, 0.25, 0.3)
+
+K0 <- length(Tau0)
+
+N0 <- 1000
+
+D0 <- 10
+
+Mu0 <- lapply(1:K0, function(k) runif(D0,-100,100) )
+
+Sigma0 <- rep(list(0),K0)
+
+for(k in 1:K0)
+{
+  Sigma0[[k]] <- rspdmatrix(D0, 0.19*k)
+}
+
+PMat0 <- lapply(1:K0, function(k) solve(Sigma0[[k]]))
+
+
+AMat0 <- lapply(1:K0, function(k) +
+ifelse(PMat0[[k]]!=0 & row(PMat0[[k]])!=col(PMat0[[k]]),1,0))
+
+ ANetwork0 <- lapply(1:K0, function(k) network(AMat0[[k]]))
+ 
+png("7D1.png")
+
+par(mfrow=c(1,2))
+
+ plot(ANetwork0[[2]],label=1:D0,main="Sparsity = 0.19*2")
+ 
+ plot(ANetwork0[[3]],label=1:D0,main="Sparsity = 0.19*3")
+ 
+dev.off()
+
+png("7D2.png")
+
+par(mfrow=c(1,2))
+
+ plot(ANetwork0[[4]],label=1:D0,main="Sparsity = 0.19*4")
+ 
+ plot(ANetwork0[[5]],label=1:D0,main="Sparsity = 0.19*5")
+ 
+dev.off()
