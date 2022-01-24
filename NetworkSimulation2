@@ -1,0 +1,9 @@
+Sample0 <- rmmnorm(N0,D0,Tau0,Mu0,Sigma0)
+
+Theta0 <- list(Tau=Tau0, Mu=Mu0, Sigma=Sigma0)
+
+
+Emglasso0 <- emglasso(Sample0,Tau0)
+
+capture.output(list(TrueTheta0=list(TrueTau0=Tau0,TrueMu0=Mu0,TrueSigma0=Sigma0), +
+Theta0Hat=Emglasso0$Theta),file="Emglasso0")
