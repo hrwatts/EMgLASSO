@@ -1,0 +1,17 @@
+^\.git/
+^\.gitignore$
+^\.Rhistory$
+^\.RData$
+^\.Rproj\.user/
+^EMgLASSO\.Rproj$
+^main\.tex$
+^The_Package_emglasso\.pdf$
+^examples/
+^figures/
+^docs/
+^\.github/
+^LICENSE$
+^CONTRIBUTING\.md$
+^CODE_OF_CONDUCT\.md$
+^private_archive/
+^generate_figures\.py$
