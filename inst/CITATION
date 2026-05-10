@@ -1,0 +1,57 @@
+citHeader("To cite the EMgLASSO package in publications, please use:")
+
+citEntry(
+  entry = "Manual",
+  title = "EMgLASSO: EM-Based Gaussian Mixture Models with Sparse Covariance",
+  author = personList(
+    person("Harrison", "Watts", email = "hrwatts@users.noreply.github.com")
+  ),
+  year = "2026",
+  url = "https://github.com/hrwatts/EMgLASSO",
+  note = "R package version 0.1.0",
+  textVersion = paste(
+    "Watts, H. (2026).",
+    "EMgLASSO: EM-Based Gaussian Mixture Models with Sparse Covariance.",
+    "R package version 0.1.0.",
+    "https://github.com/hrwatts/EMgLASSO"
+  )
+)
+
+citEntry(
+  entry = "Article",
+  title = "Maximum Likelihood from Incomplete Data via the EM Algorithm",
+  author = personList(
+    person("A.P.", "Dempster"),
+    person("N.M.", "Laird"),
+    person("D.B.", "Rubin")
+  ),
+  journal = "Journal of the Royal Statistical Society, Series B",
+  year = "1977",
+  volume = "39",
+  pages = "1--38",
+  textVersion = paste(
+    "Dempster, A.P., Laird, N.M., and Rubin, D.B. (1977).",
+    "Maximum likelihood from incomplete data via the EM algorithm.",
+    "Journal of the Royal Statistical Society, Series B, 39, 1-38."
+  )
+)
+
+citEntry(
+  entry = "Article",
+  title = "Sparse Inverse Covariance Estimation with the Graphical Lasso",
+  author = personList(
+    person("J.", "Friedman"),
+    person("T.", "Hastie"),
+    person("R.", "Tibshirani")
+  ),
+  journal = "Biostatistics",
+  year = "2008",
+  volume = "9",
+  number = "3",
+  pages = "432--441",
+  textVersion = paste(
+    "Friedman, J., Hastie, T., and Tibshirani, R. (2008).",
+    "Sparse inverse covariance estimation with the graphical lasso.",
+    "Biostatistics, 9(3), 432-441."
+  )
+)

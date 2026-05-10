@@ -1,0 +1,26 @@
+Package: emglasso
+Title: EM-Based Gaussian Mixture Models with Sparse Covariance via Graphical LASSO
+Version: 0.1.0
+Authors@R: 
+    person("Harrison", "Watts", email = "hrwatts@users.noreply.github.com", role = c("aut", "cre"))
+Description: 
+    Implements a two-stage algorithm for model-based clustering in high-dimensional data
+    with sparse covariance structure estimation. The method combines the EM algorithm 
+    for Gaussian mixture models with graphical LASSO regularization to estimate sparse 
+    precision (inverse covariance) matrices for each mixture component. This approach 
+    enables simultaneous clustering and discovery of conditional independence structures
+    within each cluster.
+License: GPL-2
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Imports:
+    mvtnorm,
+    glasso,
+    stats,
+    MASS
+Suggests:
+    network,
+    testthat (>= 3.0.0)
+URL: https://github.com/hrwatts/EMgLASSO
+BugReports: https://github.com/hrwatts/EMgLASSO/issues
+Config/roxygen2/version: 8.0.0
