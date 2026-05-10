@@ -1,0 +1,189 @@
+\documentclass[10pt]{amsart}
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage{amscd}
+\usepackage{txfonts}
+\usepackage{enumerate}
+\usepackage{setspace}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{graphicx}
+
+
+\def\Xint#1{\mathchoice 
+{\XXint\displaystyle\textstyle{#1}}% 
+{\XXint\textstyle\scriptstyle{#1}}% 
+{\XXint\scriptstyle\scriptscriptstyle{#1}}% 
+{\XXint\scriptscriptstyle\scriptscriptstyle{#1}}% 
+\!\int} 
+\def\XXint#1#2#3{{\setbox0=\hbox{$#1{#2#3}{\int}$} 
+\vcenter{\hbox{$#2#3$}}\kern-.5\wd0}} 
+\def\ddashint{\Xint=} 
+\def\dashint{\Xint-}
+\def\avgint{\Xint-}
+\setlength\parindent{0pt}
+
+
+\newcommand{\Alpha}{\mathcal{A}}
+\newcommand{\Beta}{\mathcal{B}}
+\newcommand{\Rea}{\textbf{Re}}
+\newcommand{\Ima}{\textbf{Im}}
+\newcommand{\Mu}{\mathcal{M}}
+\newcommand{\Hi}{\mathcal{H}}
+\newcommand{\Ell}{\mathcal{L}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\R}{\mathbb R}
+\newcommand{\C}{\mathbb C}
+\newcommand{\N}{\mathbb N}
+\newcommand{\Q}{\mathbb Q} 
+\newcommand{\Prob}{\mathbb P}
+\newcommand{\EV}{\mathbb E}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Rho}{\mathcal{R}} 
+\newcommand{\Int}{\text{Int }}
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+\title{The Package \emph{emglasso}}
+\author{Harrison Watts }
+\date{September 2018}
+\begin{document}
+\maketitle
+\doublespacing
+
+\section{Introduction}
+
+Gaussian mixture models are widely used for model-based clustering and density estimation. In high-dimensional settings, however, the unstructured covariance estimates can be unstable and difficult to interpret. This work proposes an EM-based algorithm that combines standard mixture model estimation with graphical LASSO regularization to recover sparse precision (inverse covariance) structure within each mixture component. The resulting method, \emph{emglasso}, enables simultaneous clustering and network structure discovery in high-dimensional data.
+
+The key contribution is a two-stage approach: first, run standard EM to estimate mixture parameters; second, apply graphical LASSO with BIC-selected penalties to impose sparsity on component-specific covariance matrices. This strategy is computationally efficient and combines the interpretability of sparse graphical models with the flexibility of mixture modeling.
+
+\section{Method} 
+
+Consider a $d$-dimensional mixture distribution with $k$ mixture components associated with the parameter vector $\boldsymbol{\Theta}=(\boldsymbol{\tau},\boldsymbol{\mu},\Sigma),$ where 
+\[
+\boldsymbol{\tau}=\begin{bmatrix} 
+\tau_1 \\ \tau_2 \\ \vdots \\ \tau_k
+\end{bmatrix},\tab
+\boldsymbol{\mu}=\begin{bmatrix}
+\boldsymbol{\mu}_1 \\ \boldsymbol{\mu}_2 \\ \vdots \\ \boldsymbol{\mu}_k
+\end{bmatrix},\tab
+{\bf \Sigma}=\begin{bmatrix}
+{\bf \Sigma}_1 \\ {\bf \Sigma}_2 \\ \vdots \\ {\bf \Sigma}_k
+\end{bmatrix}
+\] represent respectively the mixture probability, the mean vector, and the covariance matrix for each component in the MMN distribution.
+For a random sample ${\bf X}'=(X_1',...,X_n')$ of size $n$ drawn independently from the population, the unobserved data are the random variables ${\bf Z}'=(Z_1,...,Z_n)$ that determine with probability $\tau_j$ from which mixture the observation originates: 
+\[
+\begin{split}
+    {\bf X}_i|(Z_i=j)\sim \mathcal{N}_d(\mu_j,{\bf\Sigma}_j),&\tab P(Z_i=j)=\tau_j,\tab j=1,...,k,\\
+    \text{ subject to}&\tab \sum_{j=1}^k \tau_j =1.
+\end{split}
+\]
+These variables constitute a random sample on the multinomial random variable ${\bf Z}$. Therefore $Z_1,...,Z_n$ are independently and identically distributed multinomial random variables with probabilities $\boldsymbol{\tau}.$ Let ${\bf x}'=({\bf x}_1',...,{\bf x}_n')$ be the observed values of ${\bf X}$ given by the sample. And ${\bf z}'=(z_1,...,z_n)$ are the latent values associated with the realization of the random sample. The observed likelihood function is $L({\bf \Theta}|{\bf x})=\prod_{i=1}^n \sum_{j=1}^k \tau_j f({\bf x}_i;\boldsymbol{\mu}_j, \boldsymbol{\Sigma}_j),$ where $f$ is the pdf of the $j$th multivariate normal distribution in the mixture and is given by $$f({\bf x};\boldsymbol{\mu},\boldsymbol{\Sigma})=\frac{\exp(-\frac{1}{2}({\bf x}-\boldsymbol{\mu})'\boldsymbol{\Sigma}^{-1}({\bf x}-\boldsymbol{\mu}))}{\sqrt{(2\pi)^d|\boldsymbol{\Sigma}|}},$$ where $|{\bf \Sigma}|$ is the determinant of the covariance matrix ${\bf \Sigma}$. The complete likelihood function is the product 
+\[
+L^c({\bf \Theta};{\bf x},{\bf z})=\prod_{i=1}^{n}\prod_{j=1}^k \left[\tau_j f({\bf x}_i;{\bf \mu}_j,{\bf \Sigma}_j)\right]^{{\bf 1}_{(z_i=j)}},
+\]
+where ${\bf 1}_{(z_i=j)}$ is an indicator function equal to 1 if $z_i=j$ and 0 otherwise. Given the exponential structure of the complete likelihood function, the E-step is simplified by working with the complete log-likelihood $\ell^c({\bf\Theta};{\bf x},{\bf z})=\log L^c({\bf\Theta};{\bf x},{\bf z})$:
+\[
+\ell^c({\bf\Theta};{\bf x},{\bf z})=\sum_{i=1}^n\sum_{j=1}^k {\bf 1}_{(z_i=j)} \left[\log \tau_j -\frac{1}{2}\left(({\bf x}_i-\boldsymbol{\mu}_j)'{\bf \Sigma}_j^{-1}({\bf x}_i-\boldsymbol{\mu}_j)+d\log(2\pi)+\log|{\bf\Sigma}_j|\right)\right]
+\]
+
+At each iteration $t$ of the EM algorithm, the estimates for ${\bf\Theta}$ are 
+\[
+{\bf \Theta}^{(t)}= \begin{bmatrix}
+{\bf \tau}^{(t)} \\ {\bf \mu}^{(t)} \\ {\bf \Sigma}^{(t)}
+\end{bmatrix}.
+\]
+
+ The goal  is to maximize the objective function
+\[
+\begin{split}
+Q({\bf \Theta} | {\bf \Theta}^{(t)})&=E_{{\bf Z}|{\bf x},{\bf \Theta}^{(t)}}[\ell^c({\bf \Theta};{\bf x},{\bf Z})]\\
+&=\sum_{i=1}^n\sum_{j=1}^{k}T_{i,j}^{(t)}\left[\log \tau_j-\frac{1}{2}({\bf x}_i-\boldsymbol{\mu}_j^)'{\bf \Sigma}_j^{-1}({\bf x}_i-\boldsymbol{\mu}_j)-\frac{d}{2}\log(2\pi)-\frac{1}{2}\log|{\bf\Sigma}_j|\right]
+\end{split}
+\] 
+where the posterior responsibility is defined by Bayes' theorem as
+\[
+T_{i,j}^{(t)}=P(Z_i=j | {\bf X}_i={\bf x}_i,  {\bf \Theta}^{(t)}) = \frac{ \tau_j^{(t)} f({\bf x}_i;\boldsymbol{\mu}_j^{(t)}, \boldsymbol{\Sigma}_j^{(t)}) }{ \sum_{\ell=1}^k \tau_\ell^{(t)} f({\bf x}_i;\boldsymbol{\mu}_\ell^{(t)}, \boldsymbol{\Sigma}_\ell^{(t)}) }
+\] 
+
+Obtain the $(t+1)$th estimates for ${\bf \Theta}$ as the arguments for $Q$ that produce a maximum, i.e. ${\bf \Theta}^{(t+1)}=\text{argmax}Q({\bf\Theta}|{\bf\Theta}^{(t)}).$ Because $\boldsymbol{\tau}$ is in a separate term of a linear combination of the parameters that constitute ${\bf\Theta},$ it can be optimized separately from $\boldsymbol{\mu}$ and ${\bf\Sigma}$. The new estimate for  $\boldsymbol{\tau}$ is then obtained by maximizing $Q$ in the direction of $\boldsymbol{\tau}$. Define the function  the terms of the sum that involve only $\boldsymbol{\tau}^{(t)}$
+\[
+\begin{split}
+    \text{maximize} &\tab  Q_{{\boldsymbol{\tau}}}= \sum_{i=1}^n\sum_{j=1}^kT_{i,j}^{(t)}\log\tau_j\\
+    \text{subject to} &\tab R_{\boldsymbol{\tau}}=\sum_{j=1}^k \tau_j-1=0.
+\end{split}
+\]
+
+This constrained optimization problem can be solved with a Lagrange multiplier $\lambda$. Solve the system of equations $(\nabla Q_{\boldsymbol{\tau}},R_{\boldsymbol{\tau}})=(\nabla \lambda R_{\boldsymbol{\tau}},0)$ where $\nabla$ denotes the gradient with respect to $\boldsymbol{\tau}$. Expressions for each component in $\boldsymbol{\tau}$ can be found in terms of $\lambda$. Then the constraint equation can be used to find a constant value for $\lambda.$ This procedure leads to the following system:
+
+\[
+\begin{split}
+    \frac{\sum_{i=1}^n T_{i,1}^{(t)}}{-\lambda}&= \tau_{1}\\
+    \frac{\sum_{i=1}^n T_{i,2}^{(t)}}{-\lambda}&= \tau_{2}\\
+    \vdots \\
+    \frac{\sum_{i=1}^n T_{i,k}^{(t)}}{-\lambda}&= \tau_{k}\\
+    \sum_{j=1}^k \tau_j&=1.
+\end{split}
+\]
+Since $\sum_{j=1}^kT_{i,j}^{(t)}=1$ for each $i$ (by the definition of posterior probabilities), we have $\sum_{i=1}^n\sum_{j=1}^k T_{i,j}^{(t)} = n$. From the constraint, $\sum_{j=1}^k \tau_j = 1$, we obtain $\frac{n}{-\lambda}=1$, so $\lambda=-n$. Substituting back:
+\[
+\boldsymbol{\tau}^{(t+1)}=\begin{bmatrix}
+\frac{1}{n}\sum_{i=1}^nT_{i,1}^{(t)} \\ \frac{1}{n}\sum_{i=1}^nT_{i,2}^{(t)} \\ \vdots \\ \frac{1}{n}\sum_{i=1}^nT_{i,k}^{(t)}\end{bmatrix}.
+\]
+
+
+
+Finally the parameter estimate ${\bf \Theta}^{(maxIt)}$ is used as the argument for the function $glasso$ from its R package of the same name. The so-called $lstep$ in the package $emglasso$ initializes a vector ${\bf \Rho}=(0.01,0.02,...,2)$ of candidate penalties and evaluates $glasso$ for each $\rho=1,2,...200$ to obtain the estimate ${\bf W}_{\rho}$ for ${\bf \Sigma}$. For each $n=1,...,N$ and $k=1,...,K$ the Bayesian information criterion (BIC) is calculated by the formula $BIC_{\rho}=-2(loglik_{\rho})+(D2_{\rho})\ln(N),$ where $loglik_{\rho}$ is the natural logarithm of the likelihood $L({\bf W}_{\rho};{\bf x},{\bf z})$ and is a value of the $glasso$ function. The symbol $D2_{\rho}$ represents the number of non-zero parameters that is estimated by $glasso$ for each $\rho=1,2,...,200$ and $k=1,...,K.$ So $D2$ is the number of parameters in the upper triangle of the mixture's $k$th covariance matrix estimate in ${\bf W}_{\rho}.$ A higher value of ${\bf \Rho}$ can only yield higher sparsity in the estimate of the covariance matrix ${\bf \Sigma}$, so an increase in ${\bf \Rho}$ may correspond to a decrease in $D2_{\rho}$ and thus a decrease in $BIC_{\rho}$. The penalty $\Rho_{\rho}^*$ that minimizes $BIC_{\rho}$ is selected and used as a the penalty for $glasso$ to obtain ${\bf W}_{\rho}^*$, the final estimate for ${\bf \Sigma}$. 
+
+\section{Simulation}
+
+The package $emglasso$ is equipped with functions for generating positive definite matrices of arbitrary sparsity and random samples from $MMN$ distributions. The function $rspdmatrix(D,\lambda,epsilon=1e-4)$ creates a block matrix of specified dimension $D$ by drawing random values from a uniform distribution over (0,1). This is not the typical independence structure for practical applications. The nonzero parameters are random samples from the binomial distribution. Then entry indices are drawn from a binomial distribution with parameters ($D^2,\lambda$), where $\lambda$ is the specified sparsity of the matrix. These entries are removed symmetrically about the diagonal. Finally the diagonal is modified to ensure the matrix is positive definite. Sparse matrices that arise from mathematical modeling of real data, however, tend to have a heavier distribution of nonzero parameters near the diagonal rather than randomly preserving only the positive definite property. This is the type of sparsity that $glasso$ was developed to estimate. Below is the R code for the function $rspdmatrix$ followed by a demonstration of some matrices obtained of various sparsity represented as the graph of its corresponding precision-matrix inverse.
+
+
+\begin{figure}
+\centering
+\includegraphics[width=.75\textwidth]{figures/precision_networks_low_sparsity.png}
+\caption{\label{fig:LS} Low sparsity precision matrices yield highly dependent graphs. These graphs correspond to the covariance matrices Sigma0[[2]] and Sigma0[[3]].}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\includegraphics[width=.75\textwidth]{figures/precision_networks_high_sparsity.png}
+\caption{\label{fig:HS} Higher sparsity precision matrices yield less dependent graphs. These graphs correspond to the covariance matrices Sigma0[[4]] and Sigma0[[5]].}
+\end{figure}
+
+The function $rmmnorm(N,D,{\bf \tau},{\bf \mu},{\bf \Sigma})$ generates a random sample of size $N$ from a collection of multivariate normal distributions with parameters ${\bf \mu}$ and ${\bf \Sigma}$ mixed according to ${\bf \tau}.$ 
+
+A code in R will run $emglasso$ on a randomly generated MMN sample generated with $rmmnorm$ and the $rspdmatrix$ code from above.
+
+The true parameters are recorded below, followed by the parameter estimates obtained from $emglasso$. 
+
+In this execution of $emglasso$, the covariance sparsity of each mixture component was gradually increased by 19\%. 
+
+A detailed example with code and output can be found in the package examples directory.
+
+\begin{thebibliography}{99}
+
+\bibitem{Dempster1977}
+Dempster, A.P., Laird, N.M., and Rubin, D.B. (1977).
+``Maximum likelihood from incomplete data via the EM algorithm.''
+\textit{Journal of the Royal Statistical Society}, Series B, \textbf{39}, 1-38.
+
+\bibitem{Friedman2008}
+Friedman, J., Hastie, T., and Tibshirani, R. (2008).
+``Sparse inverse covariance estimation with the graphical lasso.''
+\textit{Biostatistics}, \textbf{9}(3), 432-441.
+
+\bibitem{Tipping2001}
+Tipping, M.E. and Bishop, C.M. (2001).
+``Mixtures of probabilistic principal component analyzers.''
+\textit{Journal of the American Statistical Association}, \textbf{96}(443), 640-655.
+
+\bibitem{Banfield1993}
+Banfield, J.D. and Raftery, A.E. (1993).
+``Model-based Gaussian and non-Gaussian clustering.''
+\textit{Biometrics}, \textbf{49}(3), 803-821.
+
+\end{thebibliography}
+
+\end{document}

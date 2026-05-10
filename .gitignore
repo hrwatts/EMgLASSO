@@ -37,3 +37,13 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# Example outputs
+examples/output/
+!examples/output/.gitkeep
+
+# Local-only archive for non-public documents
+private_archive/
+
+# Local Python environment
+.venv/

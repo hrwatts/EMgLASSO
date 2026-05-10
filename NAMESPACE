@@ -1,0 +1,13 @@
+# Exports
+export(emglasso)
+export(rmmnorm)
+export(rspdmatrix)
+
+# Imports
+importFrom(mvtnorm, dmvnorm)
+importFrom(glasso, glasso)
+importFrom(stats, cov.wt)
+importFrom(stats, rmultinom)
+importFrom(stats, rbinom)
+importFrom(stats, runif)
+importFrom(MASS, mvrnorm)
