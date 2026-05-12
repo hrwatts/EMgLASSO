@@ -271,7 +271,7 @@ This package is licensed under the GNU General Public License v2.0. The package 
 
 - **Examples**: See `examples/` folder for working code
 - **Function help**: Run `?emglasso`, `?rmmnorm`, etc. in R
-- **Technical details**: See [main.tex](main.tex)
+- **Technical details**: See [docs/main.tex](docs/main.tex)
 - **Issues**: Report bugs or feature requests at [GitHub Issues](https://github.com/hrwatts/EMgLASSO/issues)
 
 ## Contributing
